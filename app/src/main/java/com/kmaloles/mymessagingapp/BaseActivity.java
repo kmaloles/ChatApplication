@@ -2,9 +2,13 @@ package com.kmaloles.mymessagingapp;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -40,6 +44,14 @@ public class BaseActivity extends AppCompatActivity {
             mDialog.dismiss();
             mDialog = null;
         }
+    }
+
+    public void showToast(String text, Context context) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (context != null) {
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 

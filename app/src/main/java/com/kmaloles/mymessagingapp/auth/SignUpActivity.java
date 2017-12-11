@@ -16,6 +16,7 @@ import com.kmaloles.mymessagingapp.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class SignUpActivity extends BaseActivity {
 
@@ -29,12 +30,13 @@ public class SignUpActivity extends BaseActivity {
     EditText mPassword;
 
     private final String TAG = "SignUpActivity";
+    Unbinder mUnbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        ButterKnife.bind(this);
+        mUnbinder = ButterKnife.bind(this);
     }
 
     public static void start(Context context){
@@ -71,5 +73,11 @@ public class SignUpActivity extends BaseActivity {
                         }
                     });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUnbinder.unbind();
     }
 }

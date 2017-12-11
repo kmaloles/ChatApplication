@@ -23,6 +23,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class SignInActivity extends BaseActivity {
 
@@ -31,6 +32,8 @@ public class SignInActivity extends BaseActivity {
     EditText mEditTextEmail;
     @BindView(R.id.editText_signIn_password)
     EditText mEditTextPassword;
+
+    Unbinder mUnbinder;
 
     private static final int RC_SIGN_IN = 123;
 
@@ -46,7 +49,7 @@ public class SignInActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         //TODO: check if currently LoggedIn
-        ButterKnife.bind(this);
+        mUnbinder = ButterKnife.bind(this);
     }
 
     private void createSignInView(){
@@ -97,4 +100,9 @@ public class SignInActivity extends BaseActivity {
         SignUpActivity.start(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUnbinder.unbind();
+    }
 }
