@@ -13,9 +13,15 @@ import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.R;
+import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.main.MainActivity;
+import com.kmaloles.mymessagingapp.model.User;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +45,9 @@ public class SignInActivity extends BaseActivity {
 
     private final String TAG = "SignInActivity";
 
+    DatabaseReference mDBReference;
+    DefaultDataManager mLocalDB;
+
     public static void start(Context context){
         Intent i = new Intent(context, SignInActivity.class);
         context.startActivity(i);
@@ -50,22 +59,7 @@ public class SignInActivity extends BaseActivity {
         setContentView(R.layout.activity_sign_in);
         //TODO: check if currently LoggedIn
         mUnbinder = ButterKnife.bind(this);
-    }
-
-    private void createSignInView(){
-
-// Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
-
-// Create and launch sign-in intent
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN);
+        mLocalDB = new DefaultDataManager(this);
     }
 
     @OnClick(R.id.button_sign_in)
@@ -76,16 +70,12 @@ public class SignInActivity extends BaseActivity {
             showLoading();
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
-                        hideLoading();
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(this, "Authentication Successful.",
-                                    Toast.LENGTH_SHORT).show();
-
-                            MainActivity.start(this);
+                            setUserTypeAndContinue(email);
                         } else {
+                            hideLoading();
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(this, "Authentication failed.",
@@ -104,5 +94,29 @@ public class SignInActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         mUnbinder.unbind();
+    }
+
+    private void setUserTypeAndContinue(String email){
+        mDBReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                hideLoading();
+                if (dataSnapshot.exists()) {
+                    // if username found
+                    User user = dataSnapshot.getValue(User.class);
+                    mLocalDB.setUserType(user.getUserType());
+                    mLocalDB.persistUserLogin(user.getUsername());
+                    MainActivity.start(getBaseContext());
+                }else{
+                    showToast("Something went wrong, please try again", getBaseContext());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                hideLoading();
+                Log.wtf(TAG, databaseError.toString());
+            }
+        });
     }
 }

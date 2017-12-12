@@ -5,10 +5,13 @@
     <string name="fb_login_protocol_scheme" translatable="false">MyMessagingApp</string>
     <string name="please_wait" translatable="false">Please wait</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="tab_text_1">Group Chat</string>
+    <string name="tab_text_1">Public Chat</string>
     <string name="tab_text_2">Admin</string>
+    <string name="public_chat_root_node">Group_Chat</string>
+    <string name="users_root_node">Users</string>
+    <string name="registration_logs_root_node">Registration_Logs</string>
+    <string name="admin_chat_root_node">Admin_Chat</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

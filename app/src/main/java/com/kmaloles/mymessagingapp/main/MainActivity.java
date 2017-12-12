@@ -3,9 +3,6 @@ package com.kmaloles.mymessagingapp.main;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -90,7 +87,7 @@ public class MainActivity extends BaseActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    GroupChatFragment tab1 = new GroupChatFragment();
+                    PublicChatFragment tab1 = new PublicChatFragment();
                     return tab1;
                 case 1:
                     AdminFragment tab2 = new AdminFragment();
