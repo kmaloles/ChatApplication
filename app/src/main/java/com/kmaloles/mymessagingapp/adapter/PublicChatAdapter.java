@@ -71,9 +71,7 @@ public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemViewType(int position) {
-        int result = mMessages.get(position).getSender().equalsIgnoreCase(mLoggedInUsername ) ? FIRST:SECOND;
-
-        return result;
+        return mMessages.get(position).getSender().equalsIgnoreCase(mLoggedInUsername ) ? FIRST:SECOND;
 
     }
 

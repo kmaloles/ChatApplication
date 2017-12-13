@@ -14,16 +14,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.kmaloles.mymessagingapp.BaseActivity;
+import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
-
-import butterknife.BindView;
-import butterknife.OnClick;
+import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 
 public class MainActivity extends BaseActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     ViewPager mViewPager;
+    DefaultDataManager mLocalDB;
 
     public static void start(Context context){
         Intent i = new Intent(context, MainActivity.class);
@@ -52,6 +52,8 @@ public class MainActivity extends BaseActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        mLocalDB = new DefaultDataManager(this);
 
     }
 
@@ -97,11 +99,21 @@ public class MainActivity extends BaseActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    PublicChatFragment tab1 = new PublicChatFragment();
+                    //messenger fragment which displays all public messages
+                    MessengerFragment tab1 = MessengerFragment.newInstance(Constants.FRAGMENT_MODE_PUBLIC_MESSAGING);
                     return tab1;
                 case 1:
-                    AdminFragment tab2 = new AdminFragment();
-                    return tab2;
+                    //check if the user is the admin, or a common user
+                    if (mLocalDB.getUserType().equals(DefaultDataManager.USER_TYPE_COMMON)){
+                        //if the user is common, display the messenger fragment which contains
+                        //the user's direct messages to the admin
+                        MessengerFragment tab2 = MessengerFragment.newInstance(Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE);
+                        return tab2;
+                    }else {
+                        // show the fragment for admin
+                        AdminFragment tab2 = new AdminFragment();
+                        return tab2;
+                    }
                 default:
                     return null;
             }

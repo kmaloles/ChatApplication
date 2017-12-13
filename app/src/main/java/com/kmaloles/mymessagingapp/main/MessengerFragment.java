@@ -1,5 +1,6 @@
 package com.kmaloles.mymessagingapp.main;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,7 +33,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class PublicChatFragment extends Fragment {
+
+public class MessengerFragment extends Fragment {
+    // the fragment initialization parameters
+    private static final String MODE = "mode";
+
+    // TODO: Rename and change types of parameters
+    private String mMode;
 
     @BindView(R.id.edittext_chatbox)
     EditText mChatBox;
@@ -48,17 +55,40 @@ public class PublicChatFragment extends Fragment {
     DatabaseReference mDBReference;
     DefaultDataManager mLocalDB;
     List<Message> mMessageList;
-    private final String TAG = "PublicChatFragment";
+    private final String TAG = "MessengerFragment";
 
-    //TODO: hide keyboard on scrolldown
+    public MessengerFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param mode Determines whether the view is used as either:
+     *               -public messaging
+     *               -direct messaging to admin
+     * @return A new instance of fragment MessengerFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static MessengerFragment newInstance(String mode) {
+        MessengerFragment fragment = new MessengerFragment();
+        Bundle args = new Bundle();
+        args.putString(MODE, mode);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //initialize firebase database
-        mDBReference = FirebaseDatabase.getInstance().getReference(getContext().getString(R.string.public_chat_root_node));
-        //TODO: dependency injection
-        mLocalDB = new DefaultDataManager(getContext());
+        if (getArguments() != null) {
+            mMode= getArguments().getString(MODE);
+        }
+
+        //initializes local and firebase database
+        initDB();
+
         //get the current username logged in
         mLoggedInUsername = mLocalDB.getUserLogin();
 
@@ -69,13 +99,18 @@ public class PublicChatFragment extends Fragment {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                //return if fragment is in Direct Message to Admin Mode
-                // and the message is NOT sent by the current user
-
                 //TODO: Add to displayed list
                 //TODO: pagination
                 Message message = dataSnapshot.getValue(Message.class);
                 Log.e(TAG,message.toString());
+
+//                if we are on direct message to admin mode
+//                and the message is NOT sent by the current user
+//                i.e. the message was sent to the admin
+//                by some other account, exit the method
+                boolean senderIsNotUser = !message.getSender().equals(mLoggedInUsername);
+                boolean isInDirectMessageToAdminMode = mMode.equals(Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE);
+                if ( isInDirectMessageToAdminMode && senderIsNotUser ){return;}
 
                 mMessageList.add(message);
                 //refresh the table
@@ -118,13 +153,25 @@ public class PublicChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_group_chat, container, false);
+        View v = inflater.inflate(R.layout.fragment_messenger, container, false);
         mUnbinder = ButterKnife.bind(this,v);
 
         //initialize the chat view
         initRecyclerView();
 
         return v;
+    }
+
+    private void initDB(){
+
+        //get the string resource depending on the what we're showing in this fragment
+        int rootNode = this.mMode.equals(Constants.FRAGMENT_MODE_PUBLIC_MESSAGING) ? R.string.public_chat_root_node : R.string.admin_chat_root_node;
+
+        //initialize firebase database
+        mDBReference = FirebaseDatabase.getInstance().getReference(getContext().getString(rootNode));
+        //TODO: dependency injection
+        mLocalDB = new DefaultDataManager(getContext());
+
     }
 
     @OnClick(R.id.button_chatbox_send)
@@ -134,7 +181,8 @@ public class PublicChatFragment extends Fragment {
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
-            Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime(), Constants.MESSAGE_RECIPIENT_PUBLIC);
+            String recipient = mMode.equals(Constants.FRAGMENT_MODE_PUBLIC_MESSAGING) ? Constants.FRAGMENT_MODE_PUBLIC_MESSAGING : Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE;
+            Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime(), recipient);
             mDBReference.child(id).setValue(m);
 
             mChatBox.setText("");
@@ -157,4 +205,5 @@ public class PublicChatFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
     }
+
 }
