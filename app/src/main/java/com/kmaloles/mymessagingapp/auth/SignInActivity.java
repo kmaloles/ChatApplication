@@ -23,6 +23,7 @@ import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.main.MainActivity;
+import com.kmaloles.mymessagingapp.model.DatasnapshotValueModel;
 import com.kmaloles.mymessagingapp.model.User;
 
 import java.util.Arrays;
@@ -59,6 +60,10 @@ public class SignInActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (isUserAuthenticated()){
+            startMainActivity();
+            return;
+        }
         setContentView(R.layout.activity_sign_in);
         //TODO: check if currently LoggedIn
         mUnbinder = ButterKnife.bind(this);
@@ -109,9 +114,11 @@ public class SignInActivity extends BaseActivity {
                 hideLoading();
                 if (dataSnapshot.exists()) {
                     // if username found
-                    User user = dataSnapshot.getValue(User.class);
-                    mLocalDB.setUserType(user.getUserType());
-                    mLocalDB.persistUserLogin(user.getUsername());
+                    for(DataSnapshot d: dataSnapshot.getChildren()){
+                        User user = d.getValue(User.class);
+                        mLocalDB.setUserType(user.getUserType());
+                        mLocalDB.persistUserLogin(user.getUsername());
+                    }
                     startMainActivity();
                 }else{
                     showToast("Something went wrong, please try again", getBaseContext());
@@ -128,5 +135,9 @@ public class SignInActivity extends BaseActivity {
 
     private void startMainActivity(){
         MainActivity.start(this);
+    }
+
+    private boolean isUserAuthenticated(){
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 }

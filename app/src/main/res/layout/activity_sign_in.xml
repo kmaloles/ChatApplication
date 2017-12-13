@@ -14,7 +14,7 @@
         android:layout_marginStart="22dp"
         android:layout_marginTop="44dp"
         android:ems="10"
-        android:text="k.a.maloles@gmail.com"
+        android:text="k.a.maloles22@gmail.com"
         android:inputType="textPersonName"
         android:hint="email"
         app:layout_constraintEnd_toEndOf="parent"

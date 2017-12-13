@@ -20,10 +20,18 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_weight="1"
+            style="@style/CustomActionBar"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/app_name">
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <!--<Button-->
+                <!--android:id="@+id/action_bar_account"-->
+                <!--android:layout_width="40dp"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:padding="5dp"-->
+                <!--android:gravity="left"-->
+                <!--android:background="@drawable/ic_account"/>-->
 
         </android.support.v7.widget.Toolbar>
 

@@ -16,6 +16,9 @@ import android.view.MenuItem;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.R;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+
 public class MainActivity extends BaseActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -34,6 +37,8 @@ public class MainActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -67,6 +72,11 @@ public class MainActivity extends BaseActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_user) {
+            AccountSettingsActivity.start(this);
             return true;
         }
 
@@ -107,4 +117,6 @@ public class MainActivity extends BaseActivity {
     public void onBackPressed() {
         moveTaskToBack(true);
     }
+
+
 }

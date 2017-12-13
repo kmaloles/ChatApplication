@@ -49,6 +49,8 @@ public class PublicChatFragment extends Fragment {
     List<Message> mMessageList;
     private final String TAG = "PublicChatFragment";
 
+    //TODO: hide keyboard on scrolldown
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +75,8 @@ public class PublicChatFragment extends Fragment {
                 mMessageList.add(message);
                 //refresh the table
                 mAdapter.notifyItemChanged(mMessageList.size() - 1);
+
+                mRecyclerView.scrollToPosition(mMessageList.size() - 1);
             }
 
             @Override
@@ -120,12 +124,17 @@ public class PublicChatFragment extends Fragment {
 
     @OnClick(R.id.button_chatbox_send)
     public void onSendMessageTapped(){
+        //TODO: scroll to the bottom after sending
         String message = mChatBox.getText().toString();
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
             Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime());
             mDBReference.child(id).setValue(m);
+
+            mChatBox.setText("");
+            mChatBox.clearFocus();
+
         }
     }
 
