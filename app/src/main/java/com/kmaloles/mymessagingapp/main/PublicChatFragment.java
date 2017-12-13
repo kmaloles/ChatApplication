@@ -20,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.adapter.PublicChatAdapter;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
-import com.kmaloles.mymessagingapp.model.Message;
+import com.kmaloles.mymessagingapp.model.Message2;
 import com.kmaloles.mymessagingapp.util.Util;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class PublicChatFragment extends Fragment {
 
     DatabaseReference mDBReference;
     DefaultDataManager mLocalDB;
-    List<Message> mMessageList;
+    List<Message2> mMessageList;
     private final String TAG = "PublicChatFragment";
 
     @Override
@@ -67,7 +67,7 @@ public class PublicChatFragment extends Fragment {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 //TODO: Add to displayed list
                 //TODO: pagination
-                Message message = dataSnapshot.getValue(Message.class);
+                Message2 message = dataSnapshot.getValue(Message2.class);
                 Log.e(TAG,message.toString());
 
                 mMessageList.add(message);
@@ -113,7 +113,7 @@ public class PublicChatFragment extends Fragment {
         mUnbinder = ButterKnife.bind(this,v);
 
         //initialize the chat view
-        initRecyclerView();
+        initRecyclerView2();
 
         return v;
     }
@@ -124,7 +124,7 @@ public class PublicChatFragment extends Fragment {
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
-            Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime());
+            Message2 m = new Message2(id,message, mLoggedInUsername, Util.Dates.getCurrentTime());
             mDBReference.child(id).setValue(m);
         }
     }
@@ -141,5 +141,11 @@ public class PublicChatFragment extends Fragment {
 
         mAdapter = new PublicChatAdapter(mMessageList, mLoggedInUsername);
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    //recycler view using third party library
+    private void initRecyclerView2(){
+
+
     }
 }

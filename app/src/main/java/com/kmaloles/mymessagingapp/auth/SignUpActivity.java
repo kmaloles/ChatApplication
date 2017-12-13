@@ -2,14 +2,12 @@ package com.kmaloles.mymessagingapp.auth;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,11 +16,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.R;
-import com.kmaloles.mymessagingapp.data.DataManager;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
-import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.model.User;
-import com.kmaloles.mymessagingapp.util.Util;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

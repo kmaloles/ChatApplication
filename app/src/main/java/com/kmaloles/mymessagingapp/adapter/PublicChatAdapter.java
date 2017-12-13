@@ -1,6 +1,5 @@
 package com.kmaloles.mymessagingapp.adapter;
 
-import android.provider.Telephony;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.kmaloles.mymessagingapp.R;
-import com.kmaloles.mymessagingapp.model.Message;
+import com.kmaloles.mymessagingapp.model.Message2;
 
 import java.util.List;
 
@@ -19,12 +18,12 @@ import java.util.List;
 
 public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<Message> mMessages;
+    private List<Message2> mMessages;
     private String mLoggedInUsername;
     private final int FIRST = 1;
     private final int SECOND = 2;
 
-    public PublicChatAdapter(List<Message> mMessages, String user) {
+    public PublicChatAdapter(List<Message2> mMessages, String user) {
         this.mMessages = mMessages;
         this.mLoggedInUsername = user;
     }
@@ -44,7 +43,7 @@ public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Message m = mMessages.get(position);
+        Message2 m = mMessages.get(position);
 
         //bind the views inside the cell to the data
         //checks the instance of the cell first before binding
