@@ -17,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.R;
@@ -78,7 +79,6 @@ public class SignInActivity extends BaseActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             setUserTypeAndContinue(email);
-                            MainActivity.start(this);
                         } else {
                             hideLoading();
                             // If sign in fails, display a message to the user.
@@ -102,7 +102,8 @@ public class SignInActivity extends BaseActivity {
     }
 
     private void setUserTypeAndContinue(String email){
-        mDBReference.child(mUsersRootNode).orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+        Query query = mDBReference.child(mUsersRootNode).orderByChild("email").equalTo(email);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 hideLoading();
@@ -111,6 +112,7 @@ public class SignInActivity extends BaseActivity {
                     User user = dataSnapshot.getValue(User.class);
                     mLocalDB.setUserType(user.getUserType());
                     mLocalDB.persistUserLogin(user.getUsername());
+                    startMainActivity();
                 }else{
                     showToast("Something went wrong, please try again", getBaseContext());
                 }
@@ -122,5 +124,9 @@ public class SignInActivity extends BaseActivity {
                 Log.wtf(TAG, databaseError.toString());
             }
         });
+    }
+
+    private void startMainActivity(){
+        MainActivity.start(this);
     }
 }
