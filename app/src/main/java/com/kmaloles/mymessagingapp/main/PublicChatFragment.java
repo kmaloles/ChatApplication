@@ -25,6 +25,8 @@ import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -79,7 +81,7 @@ public class PublicChatFragment extends Fragment {
 
                 mMessageList.add(message);
                 //refresh the table
-                mAdapter.notifyItemChanged(mMessageList.size() - 1);
+                mAdapter.notifyDataSetChanged();
 
                 mRecyclerView.scrollToPosition(mMessageList.size() - 1);
             }
@@ -157,4 +159,5 @@ public class PublicChatFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
     }
+
 }

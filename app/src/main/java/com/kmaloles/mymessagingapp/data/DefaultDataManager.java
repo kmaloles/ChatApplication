@@ -33,7 +33,7 @@ public class DefaultDataManager implements DataManager {
 
     @Override
     public void setUserType(String userType) {
-        if (userType == USER_TYPE_ADMIN){
+        if (userType.equals(USER_TYPE_ADMIN)){
             mPreferences.edit().putString(KEY_USER_TYPE, USER_TYPE_ADMIN).apply();
         }else{
             mPreferences.edit().putString(KEY_USER_TYPE, USER_TYPE_COMMON).apply();

@@ -2,11 +2,33 @@ package com.kmaloles.mymessagingapp.main;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
+import com.kmaloles.mymessagingapp.adapter.AdminMessagesAdapter;
+import com.kmaloles.mymessagingapp.data.DefaultDataManager;
+import com.kmaloles.mymessagingapp.model.Message;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class AdminFragment extends Fragment {
     // the fragment initialization parameters
@@ -14,20 +36,29 @@ public class AdminFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private String mMode;
+    private Unbinder mUnbinder;
+
+    @BindView(R.id.recycler_view_admin_dm)
+    RecyclerView mRecyclerView;
+
+    AdminMessagesAdapter mAdapter;
+
+    DatabaseReference mDBReference;
+    DefaultDataManager mLocalDB;
 
     public AdminFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param mode Determines whether the view is used as either:
-     *               -public messaging
-     *               -direct messaging to admin
-     * @return A new instance of fragment AdminFragment.
-     */
+    List<Message> mMessagesList;
+    //a list which contains messages to admin
+    //contains only the most recent message
+    //from a particular sender
+
+    List<Message> mFilteredMessagesList;
+
+    private final String TAG = "AdminFragment";
+
     // TODO: Rename and change types and number of parameters
     public static AdminFragment newInstance(String mode) {
         AdminFragment fragment = new AdminFragment();
@@ -43,18 +74,122 @@ public class AdminFragment extends Fragment {
         if (getArguments() != null) {
             mMode = getArguments().getString(MODE);
         }
+        initDB();
+        //empty messages list
+        mMessagesList = new ArrayList<>();
+        mFilteredMessagesList = new ArrayList<>();
+
+        ChildEventListener childEventListener  = new ChildEventListener() {
+            //called when a message is sent or received
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                //TODO: Add to displayed list
+                //TODO: pagination
+                Message message = dataSnapshot.getValue(Message.class);
+                Log.e(TAG,message.toString());
+
+                //refresh the table
+                refreshAdminMessages(message);
+
+                mRecyclerView.scrollToPosition(mMessagesList.size() - 1);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                //use dataSnapshot.getkey() to update list
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                //use dataSnapshot.getkey() to update list
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                //use dataSnapshot.getkey() to update list
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.wtf(TAG, "SendMessage:onCancelled", databaseError.toException());
+                Toast.makeText(getContext(), "Failed to load comments.",
+                        Toast.LENGTH_SHORT).show();
+
+            }
+
+        };
+
+        mDBReference.addChildEventListener(childEventListener);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_messenger, container, false);
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_admin, container, false);
+        mUnbinder = ButterKnife.bind(this,v);
+
+        //initialize the chat view
+        initRecyclerView();
+
+        return v;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    private void initRecyclerView(){
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+
+        mAdapter = new AdminMessagesAdapter(mFilteredMessagesList);
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
+
+
+    private void initDB(){
+        //initialize firebase database
+        mDBReference = FirebaseDatabase.getInstance().getReference(getContext().getString(R.string.admin_chat_root_node));
+        //TODO: dependency injection
+        mLocalDB = new DefaultDataManager(getContext());
+    }
+
+    /**
+     * ensures the list only contains the most recent
+     * message for a particular sender
+     * , newest at the top
+     */
+    private void refreshAdminMessages(Message message){
+        mMessagesList.add(message);
+        if (mFilteredMessagesList.size() == 0){
+            mFilteredMessagesList.add(message);
+        }else{
+            int indexToReplace = -1;
+            for(int i = 0; i < mFilteredMessagesList.size(); i++){
+                if(mFilteredMessagesList.get(i).getSender().equals(message.getSender())){
+                    indexToReplace = i;
+                }
+            }
+            //if match is found
+            if (indexToReplace >= 0){
+                mFilteredMessagesList.set(indexToReplace, message);
+            }else{
+                //just add it
+                mFilteredMessagesList.add(message);
+            }
+        }
+
+        mAdapter.notifyDataSetChanged();
     }
 
 }

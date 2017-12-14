@@ -104,6 +104,7 @@ public class MainActivity extends BaseActivity {
                     return tab1;
                 case 1:
                     //check if the user is the admin, or a common user
+                    String s = mLocalDB.getUserType();
                     if (mLocalDB.getUserType().equals(DefaultDataManager.USER_TYPE_COMMON)){
                         //if the user is common, display the messenger fragment which contains
                         //the user's direct messages to the admin

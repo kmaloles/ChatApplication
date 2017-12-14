@@ -1,6 +1,5 @@
 package com.kmaloles.mymessagingapp.main;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,7 +37,10 @@ public class MessengerFragment extends Fragment {
     // the fragment initialization parameters
     private static final String MODE = "mode";
 
-    // TODO: Rename and change types of parameters
+    // TODO: Pull to refresh
+    // TODO: Push notification
+    // TODO: onSendingMessageFailed
+
     private String mMode;
 
     @BindView(R.id.edittext_chatbox)
@@ -102,12 +104,14 @@ public class MessengerFragment extends Fragment {
                 //TODO: Add to displayed list
                 //TODO: pagination
                 Message message = dataSnapshot.getValue(Message.class);
-                Log.e(TAG,message.toString());
+                Log.e(TAG + ":" + mMode,message.toString());
 
-//                if we are on direct message to admin mode
-//                and the message is NOT sent by the current user
-//                i.e. the message was sent to the admin
-//                by some other account, exit the method
+                /**
+                * if we are on direct message to admin mode
+                * and the message is NOT sent by the current user
+                * i.e. the message was sent to the admin
+                * by some other account, exit the method
+                 **/
                 boolean senderIsNotUser = !message.getSender().equals(mLoggedInUsername);
                 boolean isInDirectMessageToAdminMode = mMode.equals(Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE);
                 if ( isInDirectMessageToAdminMode && senderIsNotUser ){return;}
@@ -138,7 +142,7 @@ public class MessengerFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.wtf(TAG, "SendMessage:onCancelled", databaseError.toException());
+                Log.wtf(TAG + ":" + mMode, "SendMessage:onCancelled", databaseError.toException());
                 Toast.makeText(getContext(), "Failed to load comments.",
                         Toast.LENGTH_SHORT).show();
 
@@ -181,8 +185,7 @@ public class MessengerFragment extends Fragment {
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
-            String recipient = mMode.equals(Constants.FRAGMENT_MODE_PUBLIC_MESSAGING) ? Constants.FRAGMENT_MODE_PUBLIC_MESSAGING : Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE;
-            Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime(), recipient);
+            Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime(), getRecipient());
             mDBReference.child(id).setValue(m);
 
             mChatBox.setText("");
@@ -203,6 +206,22 @@ public class MessengerFragment extends Fragment {
 
         mAdapter = new PublicChatAdapter(mMessageList, mLoggedInUsername);
         mRecyclerView.setAdapter(mAdapter);
+
+    }
+
+    private String getRecipient(){
+        switch (mMode) {
+            case Constants.FRAGMENT_MODE_ADMIN_TO_USER_DM:
+                //admin to common users, recipient is a common user
+                //TODO: Pass username from ADMIN view as parameter to return recipient
+                return "";
+                //common user to admin, recipient is admin
+            case Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE:
+                return Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE;
+            default:
+                //public messaging, recipient is anyone
+                return Constants.FRAGMENT_MODE_PUBLIC_MESSAGING;
+        }
 
     }
 
