@@ -23,10 +23,17 @@ public class AdminMessagesAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.mMessageList = mMessageList;
     }
 
+    public interface OnMessageClickedListener{
+        void onItemClicked(int adapterPos);
+    }
+
+    private static OnMessageClickedListener mListener;
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_admin_messages_list, parent, false);
         return new AdminMessagesAdapter.ViewHolder(v);
+
     }
 
     @Override
@@ -45,17 +52,29 @@ public class AdminMessagesAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mMessageList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView name;
         TextView message;
         TextView date;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             name = itemView.findViewById(R.id.textview_sender);
             message = itemView.findViewById(R.id.textview_message_preview);
             date = itemView.findViewById(R.id.textview_create_time);
         }
+
+
+        @Override
+        public void onClick(View view) {
+            if (mListener == null) return;
+            mListener.onItemClicked(getAdapterPosition());
+        }
+    }
+
+    public void setMessagesListener(OnMessageClickedListener listener){
+        mListener = listener;
     }
 
 

@@ -45,7 +45,8 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name="com.kmaloles.mymessagingapp.main.AccountSettingsActivity"></activity>
+        <activity android:name=".main.AccountSettingsActivity" />
+        <activity android:name=".main.DirectMessageToUserActivity"></activity>
     </application>
 
 </manifest>

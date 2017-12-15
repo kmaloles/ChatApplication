@@ -21,16 +21,20 @@ import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.adapter.AdminMessagesAdapter;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.model.Message;
+import com.kmaloles.mymessagingapp.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class AdminFragment extends Fragment {
+public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMessageClickedListener {
     // the fragment initialization parameters
     private static final String MODE = "mode";
 
@@ -89,8 +93,10 @@ public class AdminFragment extends Fragment {
                 Message message = dataSnapshot.getValue(Message.class);
                 Log.e(TAG,message.toString());
 
-                //refresh the table
-                refreshAdminMessages(message);
+                if (!message.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN)){
+                    //refresh the table
+                    refreshAdminMessages(message);
+                }
 
                 mRecyclerView.scrollToPosition(mMessagesList.size() - 1);
             }
@@ -152,6 +158,7 @@ public class AdminFragment extends Fragment {
 
 
         mAdapter = new AdminMessagesAdapter(mFilteredMessagesList);
+        mAdapter.setMessagesListener(this);
         mRecyclerView.setAdapter(mAdapter);
 
     }
@@ -169,27 +176,37 @@ public class AdminFragment extends Fragment {
      * message for a particular sender
      * , newest at the top
      */
-    private void refreshAdminMessages(Message message){
-        mMessagesList.add(message);
+    private void refreshAdminMessages(Message pMessage){
+        mMessagesList.add(pMessage);
         if (mFilteredMessagesList.size() == 0){
-            mFilteredMessagesList.add(message);
+            mFilteredMessagesList.add(pMessage);
         }else{
             int indexToReplace = -1;
             for(int i = 0; i < mFilteredMessagesList.size(); i++){
-                if(mFilteredMessagesList.get(i).getSender().equals(message.getSender())){
+                if(mFilteredMessagesList.get(i).getSender().equals(pMessage.getSender())){
                     indexToReplace = i;
                 }
             }
             //if match is found
             if (indexToReplace >= 0){
-                mFilteredMessagesList.set(indexToReplace, message);
+                mFilteredMessagesList.set(indexToReplace, pMessage);
             }else{
                 //just add it
-                mFilteredMessagesList.add(message);
+                mFilteredMessagesList.add(pMessage);
             }
         }
+        //TODO: reverse
+        Collections.sort(mFilteredMessagesList,
+                (message, t1) -> {
+                Date d1 = Util.Dates.getDateFromString(message.getCreated());
+                Date d2 = Util.Dates.getDateFromString(t1.getCreated());
+                return d1.compareTo(d2);
+        });
 
-        mAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onItemClicked(int adapterPos) {
+        DirectMessageToUserActivity.start(getActivity(),mFilteredMessagesList.get(adapterPos).getSender());
+    }
 }

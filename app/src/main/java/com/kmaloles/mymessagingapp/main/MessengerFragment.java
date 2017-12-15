@@ -101,8 +101,7 @@ public class MessengerFragment extends Fragment {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                //TODO: Add to displayed list
-                //TODO: pagination
+                //TODO: Correct date formatting on adapters
                 Message message = dataSnapshot.getValue(Message.class);
                 Log.e(TAG + ":" + mMode,message.toString());
 
@@ -217,10 +216,10 @@ public class MessengerFragment extends Fragment {
                 return "";
                 //common user to admin, recipient is admin
             case Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE:
-                return Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE;
+                return Constants.MESSAGE_RECIPIENT_ADMIN;
             default:
                 //public messaging, recipient is anyone
-                return Constants.FRAGMENT_MODE_PUBLIC_MESSAGING;
+                return Constants.MESSAGE_RECIPIENT_PUBLIC;
         }
 
     }

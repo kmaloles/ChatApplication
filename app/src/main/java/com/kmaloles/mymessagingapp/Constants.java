@@ -11,6 +11,6 @@ public class Constants {
     public static final String FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE = "AdminDirectMessaging";
     public static final String FRAGMENT_MODE_ADMIN_TO_USER_DM = "AdminToUserDM";
     //message recipients
-    public static final String MESSAGE_RECIPIENT_PUBLIC = "Public";
-    public static final String MESSAGE_RECIPIENT_ADMIN = "Admin";
+    public static final String MESSAGE_RECIPIENT_PUBLIC = "public";
+    public static final String MESSAGE_RECIPIENT_ADMIN = "admin";
 }

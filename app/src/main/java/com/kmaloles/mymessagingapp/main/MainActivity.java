@@ -2,6 +2,7 @@ package com.kmaloles.mymessagingapp.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.Toolbar;
 
@@ -18,12 +19,21 @@ import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
 public class MainActivity extends BaseActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     ViewPager mViewPager;
     DefaultDataManager mLocalDB;
+    Unbinder mUnbind;
+
+    @BindView(R.id.fab)
+    FloatingActionButton mFab;
 
     public static void start(Context context){
         Intent i = new Intent(context, MainActivity.class);
@@ -34,10 +44,16 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mUnbind = ButterKnife.bind(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        //show the floating button for admin only
+        if(mLocalDB.getUserType().equals(DefaultDataManager.USER_TYPE_COMMON)){
+            mFab.hide();
+        }
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -131,5 +147,14 @@ public class MainActivity extends BaseActivity {
         moveTaskToBack(true);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUnbind.unbind();
+    }
 
+    @OnClick(R.id.fab)
+    public void onCreateMessageTapped(){
+
+    }
 }
