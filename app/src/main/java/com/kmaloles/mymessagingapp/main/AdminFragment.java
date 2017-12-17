@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,9 +23,7 @@ import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.util.Util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +36,7 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
     private static final String MODE = "mode";
 
     // TODO: Rename and change types of parameters
-    private String mMode;
+    // TODO: list doesn't show all messages i.e. if messages are only from admin to user
     private Unbinder mUnbinder;
 
     @BindView(R.id.recycler_view_admin_dm)
@@ -75,9 +72,6 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mMode = getArguments().getString(MODE);
-        }
         initDB();
         //empty messages list
         mMessagesList = new ArrayList<>();
@@ -148,6 +142,7 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
     @Override
     public void onDetach() {
         super.onDetach();
+        mUnbinder.unbind();
     }
 
     private void initRecyclerView(){

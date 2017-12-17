@@ -20,9 +20,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
+import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.main.MainActivity;
+import com.kmaloles.mymessagingapp.model.BannedWord;
 import com.kmaloles.mymessagingapp.model.DatasnapshotValueModel;
 import com.kmaloles.mymessagingapp.model.User;
 
@@ -93,6 +95,9 @@ public class SignInActivity extends BaseActivity {
                         }
                     });
         }
+
+        hideLoading();
+
     }
 
     @OnClick(R.id.textView_sign_up_link)
