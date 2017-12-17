@@ -4,6 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.kmaloles.mymessagingapp.model.RealmLocalBannedWords;
+
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import io.realm.Realm;
+import io.realm.RealmLocalBannedWordsRealmProxy;
+import io.realm.RealmResults;
+
 /**
  * Created by kevinmaloles on 12/12/17.
  */
@@ -43,5 +55,30 @@ public class DefaultDataManager implements DataManager {
     @Override
     public String getUserType() {
         return mPreferences.getString(KEY_USER_TYPE, null);
+    }
+
+    @Override
+    public void saveBannedWord(Realm realm,String value, Context context) {
+        if(!getBannedWords(context).contains(value)) {
+            realm.beginTransaction();
+            RealmLocalBannedWords word = realm.createObject(RealmLocalBannedWords.class);
+            word.setValue(value);
+            realm.commitTransaction();
+        }
+    }
+
+    @Override
+    public List<String> getBannedWords(Context context) {
+        Realm.init(context);
+        Realm r = Realm.getDefaultInstance();
+
+        //this method returns an array of accountNames as String, not the entire Account object
+        RealmResults<RealmLocalBannedWords> results = r.where(RealmLocalBannedWords.class).findAll();
+        //fetch results into string array
+        List<String> listOfBannedWords = new ArrayList<>(results.size());
+        for(RealmLocalBannedWords value: results){
+            listOfBannedWords.add(value.getValue());
+        }
+        return listOfBannedWords;
     }
 }

@@ -11,6 +11,7 @@
     <string name="users_root_node">Users</string>
     <string name="registration_logs_root_node">Registration_Logs</string>
     <string name="admin_chat_root_node">Admin_Chat</string>
+    <string name="message_contains_banned_words">Content blocked. This message contains restricted words.</string>
     //TODO: add banned words feature
     <string name="banned_words_root_node">Banned_Words</string>
     <string name="action_settings">Settings</string>

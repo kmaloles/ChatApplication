@@ -29,12 +29,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
+import com.kmaloles.mymessagingapp.model.BannedWord;
 import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.model.User;
+import com.kmaloles.mymessagingapp.model.WrapContentHeightViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +46,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.realm.Realm;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -63,6 +67,7 @@ public class MainActivity extends BaseActivity {
 
     List<String> mUserList;
     ArrayAdapter<String> mAdapter;
+    Realm mRealm;
 
     DatabaseReference mDBReference;
 
@@ -79,8 +84,13 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         mUnbind = ButterKnife.bind(this);
         mUserList = new ArrayList<>();
+        mRealm.init(this);
+        mRealm.getDefaultInstance();
 
         mLocalDB = new DefaultDataManager(this);
+
+        //fetches all bad words saved in firebase and stores it locally for later use
+        fetchProfanityWords();
 
         mDBReference = FirebaseDatabase.getInstance().getReference(this.getString(R.string.users_root_node));
         ChildEventListener childEventListener  = new ChildEventListener() {
@@ -146,17 +156,19 @@ public class MainActivity extends BaseActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         if (id == R.id.action_user) {
             AccountSettingsActivity.start(this);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() != R.id.fab){
+            hideContainer();
+        }
     }
 
     /**
@@ -226,8 +238,7 @@ public class MainActivity extends BaseActivity {
         anim.start();
     }
 
-    @OnClick(R.id.btnBackMain)
-    public void onHideContainerTapped(){
+    private void hideContainer(){
         mFab.show();
 
         int x = mUserListContainer.getRight();
@@ -240,6 +251,11 @@ public class MainActivity extends BaseActivity {
 
         mUserListContainer.setVisibility(View.INVISIBLE);
         anim.start();
+    }
+
+    @OnClick(R.id.btnBackMain)
+    public void onHideContainerTapped(){
+        hideContainer();
     }
 
     private void initUserListView(){
@@ -268,7 +284,7 @@ public class MainActivity extends BaseActivity {
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mViewPager = findViewById(R.id.container);
+        mViewPager =  findViewById(R.id.container);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -284,5 +300,65 @@ public class MainActivity extends BaseActivity {
 
     private void startDirectMessaging(String toUser){
         DirectMessageToUserActivity.start(this,toUser);
+    }
+
+    private void fetchProfanityWords(){
+        if (mLocalDB.getBannedWords(getApplicationContext()).size() > 0) {return;}
+        showLoading("Initializing. This will only happen once after installation.");
+        List<String> m = new ArrayList<>();
+        MainActivity.this.runOnUiThread( () -> {
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(this.getString(R.string.banned_words_root_node));
+            ChildEventListener childEventListener  = new ChildEventListener() {
+                //called when a message is sent or received
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    String value = dataSnapshot.getValue(BannedWord.class).getValue();
+                    m.add(value);
+                    Log.wtf(TAG, "Saving... " + value);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    //use dataSnapshot.getkey() to update list
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    //use dataSnapshot.getkey() to update list
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    //use dataSnapshot.getkey() to update list
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.wtf(TAG, "SendMessage:onCancelled", databaseError.toException());
+                    Toast.makeText(getApplicationContext(), "Failed to load comments.",
+                            Toast.LENGTH_SHORT).show();
+
+                }
+
+            };
+            ref.addChildEventListener(childEventListener);
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.wtf(TAG, "DONE SAVING BULLSHIT!");
+                    for (String s: m){
+                        mLocalDB.saveBannedWord(mRealm,s,getApplicationContext());
+                    }
+                    hideLoading();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        });
     }
 }

@@ -19,7 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
-import com.kmaloles.mymessagingapp.adapter.PublicChatAdapter;
+import com.kmaloles.mymessagingapp.adapter.MessengerAdapter;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.util.Util;
@@ -47,7 +47,7 @@ public class DirectMessageToUserActivity extends BaseActivity {
     String mLoggedInUserName;
 
 
-    PublicChatAdapter mAdapter;
+    MessengerAdapter mAdapter;
     Unbinder mUnbinder;
 
     DatabaseReference mDBReference;
@@ -97,6 +97,9 @@ public class DirectMessageToUserActivity extends BaseActivity {
                  * show messages from a particular user
                  */
                 if ( message.getSender().equals(mUserName) || message.getRecipient().equals(mUserName)) {
+
+                    message.setBody(getApplicationContext().getString(R.string.message_contains_banned_words));
+
                     mMessageList.add(message);
                     //refresh the table
                     mAdapter.notifyItemChanged(mMessageList.size() - 1);
@@ -166,7 +169,7 @@ public class DirectMessageToUserActivity extends BaseActivity {
         LinearLayoutManager m = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(m);
 
-        mAdapter = new PublicChatAdapter(mMessageList, mLoggedInUserName);
+        mAdapter = new MessengerAdapter(mMessageList, mLoggedInUserName);
         mRecyclerView.setAdapter(mAdapter);
 
     }

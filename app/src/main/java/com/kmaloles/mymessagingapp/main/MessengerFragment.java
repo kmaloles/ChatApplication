@@ -19,7 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
-import com.kmaloles.mymessagingapp.adapter.PublicChatAdapter;
+import com.kmaloles.mymessagingapp.adapter.MessengerAdapter;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.util.Util;
@@ -52,7 +52,7 @@ public class MessengerFragment extends Fragment {
     @BindView(R.id.recycler_view_public_chat)
     RecyclerView mRecyclerView;
 
-    PublicChatAdapter mAdapter;
+    MessengerAdapter mAdapter;
 
     DatabaseReference mDBReference;
     DefaultDataManager mLocalDB;
@@ -114,6 +114,7 @@ public class MessengerFragment extends Fragment {
                 boolean senderIsNotUser = !message.getSender().equals(mLoggedInUsername);
                 boolean isInDirectMessageToAdminMode = mMode.equals(Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE);
                 if ( isInDirectMessageToAdminMode && senderIsNotUser ){return;}
+
 
                 mMessageList.add(message);
                 //refresh the table
@@ -184,6 +185,10 @@ public class MessengerFragment extends Fragment {
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
+            if (Util.messageContainsExplicitWords(mLocalDB.getBannedWords(getContext()),message)){
+                //if message contains explicit words, replace Message.body with a generic filtered message
+                message = (getContext().getString(R.string.message_contains_banned_words));
+            }
             Message m = new Message(id,message, mLoggedInUsername, Util.Dates.getCurrentTime(), getRecipient());
             mDBReference.child(id).setValue(m);
 
@@ -203,7 +208,7 @@ public class MessengerFragment extends Fragment {
         LinearLayoutManager m = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(m);
 
-        mAdapter = new PublicChatAdapter(mMessageList, mLoggedInUsername);
+        mAdapter = new MessengerAdapter(mMessageList, mLoggedInUsername);
         mRecyclerView.setAdapter(mAdapter);
 
     }

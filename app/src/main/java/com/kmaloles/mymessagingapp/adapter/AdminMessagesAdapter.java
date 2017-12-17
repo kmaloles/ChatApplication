@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.model.Message;
 

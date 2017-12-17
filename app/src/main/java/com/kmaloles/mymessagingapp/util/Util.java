@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -74,6 +75,19 @@ public class Util {
                         DateUtils.SECOND_IN_MILLIS, 0)
                         .toString();
         }
+    }
+
+    public static boolean messageContainsExplicitWords(List<String> listOfBannedWords, String message){
+        boolean containsBadWords = false;
+        message.toLowerCase();
+        String[] words = message.split("\\s");
+        for (int i=0; i<words.length; i++) {
+            if (listOfBannedWords.contains(words[i])) {
+                containsBadWords = true;
+                break;
+            }
+        }
+        return containsBadWords;
     }
 
 }

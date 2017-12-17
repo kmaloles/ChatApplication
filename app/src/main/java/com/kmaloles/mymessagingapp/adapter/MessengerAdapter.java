@@ -1,6 +1,7 @@
 package com.kmaloles.mymessagingapp.adapter;
 
-import android.provider.Telephony;
+import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,14 +18,15 @@ import java.util.List;
  * Created by kevinmaloles on 12/12/17.
  */
 
-public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MessengerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Message> mMessages;
     private String mLoggedInUsername;
     private final int FIRST = 1;
     private final int SECOND = 2;
+    private Context mContext;
 
-    public PublicChatAdapter(List<Message> mMessages, String user) {
+    public MessengerAdapter(List<Message> mMessages, String user) {
         this.mMessages = mMessages;
         this.mLoggedInUsername = user;
     }
@@ -35,10 +37,10 @@ public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         View v;
         if (viewType == FIRST){
             v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_sent_message, parent, false);
-            return new PublicChatAdapter.SentViewHolder(v);
+            return new MessengerAdapter.SentViewHolder(v);
         }else{
             v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_received_message, parent, false);
-            return new PublicChatAdapter.ReceivedViewHolder(v);
+            return new MessengerAdapter.ReceivedViewHolder(v);
         }
     }
 
@@ -48,15 +50,19 @@ public class PublicChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         //bind the views inside the cell to the data
         //checks the instance of the cell first before binding
-        if (holder instanceof PublicChatAdapter.SentViewHolder){
+        if (holder instanceof MessengerAdapter.SentViewHolder){
             //view bindings for sent messages
-            PublicChatAdapter.SentViewHolder viewHolder = (SentViewHolder) holder;
-
+            MessengerAdapter.SentViewHolder viewHolder = (SentViewHolder) holder;
             viewHolder.message.setText(m.getBody());
+            //if the message is filtered
+            if (m.getBody().equals(viewHolder.message.getContext().getString(R.string.message_contains_banned_words))){
+                viewHolder.message.setTextSize(10);
+                viewHolder.message.setTypeface(null, Typeface.ITALIC);
+            }
             viewHolder.date.setText(m.getCreated());
         }else{
             //view bindings for received messages
-            PublicChatAdapter.ReceivedViewHolder viewHolder = (ReceivedViewHolder) holder;
+            MessengerAdapter.ReceivedViewHolder viewHolder = (ReceivedViewHolder) holder;
 
             viewHolder.message.setText(m.getBody());
             viewHolder.date.setText(m.getCreated());

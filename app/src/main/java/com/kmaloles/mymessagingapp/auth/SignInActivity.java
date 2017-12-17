@@ -145,4 +145,9 @@ public class SignInActivity extends BaseActivity {
     private boolean isUserAuthenticated(){
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }

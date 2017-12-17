@@ -24,6 +24,10 @@ public class Message implements Serializable {
         this.recipient = recipient;
     }
 
+    public void setBody(String body) {
+        this.body = body;
+    }
+
     public String getId() {
         return id;
     }

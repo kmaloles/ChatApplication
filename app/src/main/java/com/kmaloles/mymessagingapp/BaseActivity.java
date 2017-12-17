@@ -27,6 +27,18 @@ public class BaseActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
+    public void showLoading(String message) {
+        if (mDialog == null) {
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage(message);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+            mDialog = progressDialog;
+        }
+
+    }
+
     public void showLoading() {
         if (mDialog == null) {
             ProgressDialog progressDialog = new ProgressDialog(this);
