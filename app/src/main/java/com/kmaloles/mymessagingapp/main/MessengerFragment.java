@@ -185,7 +185,7 @@ public class MessengerFragment extends Fragment {
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
             //TODO: Dates in UTC
-            if (Util.messageContainsExplicitWords(mLocalDB.getBannedWords(getContext()),message)){
+            if (Util.messageContainsExplicitWords(mLocalDB.getBannedWords(),message)){
                 //if message contains explicit words, replace Message.body with a generic filtered message
                 message = (getContext().getString(R.string.message_contains_banned_words));
             }

@@ -16,6 +16,6 @@ public interface DataManager {
     String getUserLogin();
     void setUserType(String userType);
     String getUserType();
-    void saveBannedWord(Realm realm, String value, Context context);
-    List<String> getBannedWords(Context context);
+    void persistBannedWords(String value);
+    List<String> getBannedWords();
 }

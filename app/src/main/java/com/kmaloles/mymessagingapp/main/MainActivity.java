@@ -3,10 +3,8 @@ package com.kmaloles.mymessagingapp.main;
 import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -19,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -35,9 +32,7 @@ import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
 import com.kmaloles.mymessagingapp.data.DefaultDataManager;
 import com.kmaloles.mymessagingapp.model.BannedWord;
-import com.kmaloles.mymessagingapp.model.Message;
 import com.kmaloles.mymessagingapp.model.User;
-import com.kmaloles.mymessagingapp.model.WrapContentHeightViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +41,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.realm.Realm;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
@@ -67,7 +61,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     List<String> mUserList;
     ArrayAdapter<String> mAdapter;
-    Realm mRealm;
 
     DatabaseReference mDBReference;
 
@@ -84,8 +77,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_main);
         mUnbind = ButterKnife.bind(this);
         mUserList = new ArrayList<>();
-        mRealm.init(this);
-        mRealm.getDefaultInstance();
 
         mLocalDB = new DefaultDataManager(this);
 
@@ -303,9 +294,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void fetchProfanityWords(){
-        if (mLocalDB.getBannedWords(getApplicationContext()).size() > 0) {return;}
-        showLoading("Initializing. This will only happen once after installation.");
-        List<String> m = new ArrayList<>();
+        showLoading("Initializing. Please wait.");
         MainActivity.this.runOnUiThread( () -> {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference(this.getString(R.string.banned_words_root_node));
             ChildEventListener childEventListener  = new ChildEventListener() {
@@ -313,7 +302,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     String value = dataSnapshot.getValue(BannedWord.class).getValue();
-                    m.add(value);
+                    if(mLocalDB.getBannedWords().contains(value)){return;}
+                    StringBuilder sb = new StringBuilder();
+                    List<String> list = mLocalDB.getBannedWords();
+                    list.add(value);
+                    for(String word : list){
+                        sb.append(word).append(",");
+                    }
+                    mLocalDB.persistBannedWords(sb.toString());
                     Log.wtf(TAG, "Saving... " + value);
                 }
 
@@ -347,10 +343,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.wtf(TAG, "DONE SAVING BULLSHIT!");
-                    for (String s: m){
-                        mLocalDB.saveBannedWord(mRealm,s,getApplicationContext());
-                    }
+                    Log.wtf(TAG, "DONE SAVING SHIT!");
                     hideLoading();
                 }
 
