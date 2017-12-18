@@ -25,10 +25,21 @@ public class MessengerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final int FIRST = 1;
     private final int SECOND = 2;
     private Context mContext;
+    private RecyclerView mRecyclerView;
 
     public MessengerAdapter(List<Message> mMessages, String user) {
         this.mMessages = mMessages;
         this.mLoggedInUsername = user;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
+    }
+
+    public RecyclerView getRecyclerView(){
+        return mRecyclerView;
     }
 
     @Override
@@ -65,6 +76,10 @@ public class MessengerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             MessengerAdapter.ReceivedViewHolder viewHolder = (ReceivedViewHolder) holder;
 
             viewHolder.message.setText(m.getBody());
+            if (m.getBody().equals(viewHolder.message.getContext().getString(R.string.message_contains_banned_words))){
+                viewHolder.message.setTextSize(10);
+                viewHolder.message.setTypeface(null, Typeface.ITALIC);
+            }
             viewHolder.date.setText(m.getCreated());
             viewHolder.name.setText(m.getSender());
         }

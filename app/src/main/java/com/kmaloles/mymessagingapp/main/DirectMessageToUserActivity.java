@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kmaloles.mymessagingapp.BaseActivity;
 import com.kmaloles.mymessagingapp.Constants;
 import com.kmaloles.mymessagingapp.R;
@@ -98,13 +99,10 @@ public class DirectMessageToUserActivity extends BaseActivity {
                  */
                 if ( message.getSender().equals(mUserName) || message.getRecipient().equals(mUserName)) {
 
-                    message.setBody(getApplicationContext().getString(R.string.message_contains_banned_words));
-
                     mMessageList.add(message);
                     //refresh the table
                     mAdapter.notifyItemChanged(mMessageList.size() - 1);
-
-                    mRecyclerView.scrollToPosition(mMessageList.size() - 1);
+                    mAdapter.getRecyclerView().smoothScrollToPosition(mMessageList.size() - 1);
                 }
             }
 
@@ -134,8 +132,18 @@ public class DirectMessageToUserActivity extends BaseActivity {
             }
 
         };
-
         mDBReference.addChildEventListener(childEventListener);
+//        mDBReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                mRecyclerView.scrollToPosition(mMessageList.size() - 1);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     @OnClick(R.id.button_chatbox_send)
@@ -144,7 +152,12 @@ public class DirectMessageToUserActivity extends BaseActivity {
         String message = mChatBox.getText().toString();
         if (!TextUtils.isEmpty(message)){
             String id = mDBReference.push().getKey();
-            //TODO: Dates in UTC
+
+            if (Util.messageContainsExplicitWords(mLocalDB.getBannedWords(),message)){
+                //if message contains explicit words, replace Message.body with a generic filtered message
+                message = (this.getString(R.string.message_contains_banned_words));
+            }
+
             Message m = new Message(id,message, Constants.MESSAGE_RECIPIENT_ADMIN, Util.Dates.getCurrentTime(), mUserName);
             mDBReference.child(id).setValue(m);
 

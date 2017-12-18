@@ -96,8 +96,6 @@ public class SignInActivity extends BaseActivity {
                     });
         }
 
-        hideLoading();
-
     }
 
     @OnClick(R.id.textView_sign_up_link)

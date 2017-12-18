@@ -112,8 +112,10 @@ public class MessengerFragment extends Fragment {
                 * by some other account, exit the method
                  **/
                 boolean senderIsNotUser = !message.getSender().equals(mLoggedInUsername);
+                boolean senderIsAdmin = message.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN);
+                boolean recipientIsUser = message.getRecipient().equals(mLoggedInUsername);
                 boolean isInDirectMessageToAdminMode = mMode.equals(Constants.FRAGMENT_MODE_ADMIN_DIRECT_MESSAGE);
-                if ( isInDirectMessageToAdminMode && senderIsNotUser ){return;}
+                if ( isInDirectMessageToAdminMode && senderIsNotUser && !(senderIsAdmin && recipientIsUser)) {return;}
 
 
                 mMessageList.add(message);

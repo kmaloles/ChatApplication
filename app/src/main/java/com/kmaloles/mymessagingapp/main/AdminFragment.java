@@ -82,17 +82,15 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                //TODO: Add to displayed list
-                //TODO: pagination
                 Message message = dataSnapshot.getValue(Message.class);
                 Log.e(TAG,message.toString());
 
-                if (!message.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN)){
+//                if (!message.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN)){
                     //refresh the table
                     refreshAdminMessages(message);
-                }
+//                }
 
-                mRecyclerView.scrollToPosition(mMessagesList.size() - 1);
+                mRecyclerView.scrollToPosition(mFilteredMessagesList.size() - 1);
             }
 
             @Override
@@ -178,8 +176,13 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
         }else{
             int indexToReplace = -1;
             for(int i = 0; i < mFilteredMessagesList.size(); i++){
-                if(mFilteredMessagesList.get(i).getSender().equals(pMessage.getSender())){
+                boolean senderIsAdmin = pMessage.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN);
+                if((!senderIsAdmin && mFilteredMessagesList.get(i).getRecipient().equals(pMessage.getSender())) ||
+                        (!senderIsAdmin && mFilteredMessagesList.get(i).getSender().equals(pMessage.getSender())) ||
+                        (senderIsAdmin && mFilteredMessagesList.get(i).getRecipient().equals(pMessage.getRecipient())) ||
+                        (senderIsAdmin && mFilteredMessagesList.get(i).getSender().equals(pMessage.getRecipient())) ){
                     indexToReplace = i;
+                    break;
                 }
             }
             //if match is found
@@ -197,11 +200,14 @@ public class AdminFragment extends Fragment implements AdminMessagesAdapter.OnMe
                 Date d2 = Util.Dates.getDateFromString(t1.getCreated());
                 return d1.compareTo(d2);
         });
+        mAdapter.notifyDataSetChanged();
 
     }
 
     @Override
     public void onItemClicked(int adapterPos) {
-        DirectMessageToUserActivity.start(getActivity(),mFilteredMessagesList.get(adapterPos).getSender());
+        Message message = mFilteredMessagesList.get(adapterPos);
+        String recipient = message.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN) ? message.getRecipient():message.getSender();
+        DirectMessageToUserActivity.start(getActivity(), recipient);
     }
 }

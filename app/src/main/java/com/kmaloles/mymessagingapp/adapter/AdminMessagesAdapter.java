@@ -44,7 +44,8 @@ public class AdminMessagesAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         viewHolder.message.setText(m.getBody());
         viewHolder.date.setText(m.getCreated());
-        viewHolder.name.setText(m.getSender());
+        String name = m.getSender().equals(Constants.MESSAGE_RECIPIENT_ADMIN) ? m.getRecipient():m.getSender();
+        viewHolder.name.setText(name);
 
     }
 
