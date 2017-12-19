@@ -84,10 +84,6 @@ public class SignUpActivity extends BaseActivity {
                         showToast("Username already exists. Please select a different one", getBaseContext());
                         return;
                     }else{
-                        //create the user in firebase database
-                        mDBReference.push();
-                        User user = new User(username,email,DefaultDataManager.USER_TYPE_COMMON);
-                        mDBReference.child(mUsersRootNode).child(username).setValue(user);
 
                         //create the user in firebase auth
                         mAuth.createUserWithEmailAndPassword(email, password)
@@ -96,12 +92,17 @@ public class SignUpActivity extends BaseActivity {
                                     if (task.isSuccessful()) {
                                         // Sign in success, update UI with the signed-in user's information
                                         Log.d(TAG, "createUserWithEmail:success");
-                                        Toast.makeText(getBaseContext(), "Authentication Successful.",
+                                        //create the user in firebase database
+                                        mDBReference.push();
+                                        User user = new User(username,email,DefaultDataManager.USER_TYPE_COMMON);
+                                        mDBReference.child(mUsersRootNode).child(username).setValue(user);
+                                        Toast.makeText(getBaseContext(), "Registration Completed",
                                                 Toast.LENGTH_SHORT).show();
+                                        onBackPressed();
                                     } else {
                                         // If sign in fails, display a message to the user.
                                         Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                        Toast.makeText(getBaseContext(), "Authentication failed.",
+                                        Toast.makeText(getBaseContext(), task.getException().toString(),
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 });
